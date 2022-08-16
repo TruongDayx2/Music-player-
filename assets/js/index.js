@@ -3,8 +3,20 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+const player = $('.player');
+const heading = $('header h2');
+const cdThumb = $('.cd-thumb');
+const audio = $('#audio');
+const cd = $('.cd');
+const playBtn = $('.btn-toggle-play');
+const progress = $('#progress');
+
+
 const app = {
     currentIndex : 0,
+    isPlaying : false,
+    //isTimeupdate:true,
+
     songs: [
         {
             name: 'đứa nào làm em buồn',
@@ -70,9 +82,18 @@ const app = {
         })
     },
     handleEvents: function(){
-        const cd = $('.cd');
         const cdWidth = cd.offsetWidth;
 
+        // xử lí quay cd
+        const cdAnimate = cdThumb.animate([
+            {transform:'rotate(360deg)'}
+        ],{
+            duration: 10000,
+            iteration :Infinity
+        })
+        cdAnimate.pause();
+
+        // Xử lí phóng to thu nhỏ CD
         document.onscroll = function(){
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const newCdWidth = cdWidth - scrollTop;
@@ -80,16 +101,51 @@ const app = {
             cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0;
             cd.style.opacity = newCdWidth / cdWidth;
         }
+
+        // Xử lí button play
+        playBtn.onclick = function(){
+            if (app.isPlaying){
+                audio.pause();
+            }else{
+                audio.play();
+            }
+        }
+        
+        
+
+
+        // play song
+        audio.onplay = function(){
+            app.isPlaying = true;
+            player.classList.add('playing');
+            cdAnimate.play();
+        }
+        // pause song
+        audio.onpause = function(){
+            app.isPlaying = false;
+            player.classList.remove('playing');
+            cdAnimate.pause();
+        }
+        // xử lí thanh chạy bài hát
+        audio.ontimeupdate = function(){       
+                if(audio.duration){
+                    const progressPercent = Math.floor(audio.currentTime / audio.duration *100)
+                    progress.value = progressPercent;
+                }          
+        }
+        // seek song
+        progress.oninput = function(e){
+            const seekTime = audio.duration * e.target.value / 100 ;
+            audio.currentTime = seekTime;
+        }
+
+
+
     },
     loadCurrentSong: function(){
-        const heading = $('header h2');
-        const cdThumb = $('.cd-thumb');
-        const audio = $('#audio');
-
         heading.textContent = this.currentSong.name;
         cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
         audio.src = this.currentSong.path;
-
     },
     start: function(){
         // Địng nghĩa các thuộc tính cho object
