@@ -4,6 +4,7 @@ const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
 const app = {
+    currentIndex : 0,
     songs: [
         {
             name: 'đứa nào làm em buồn',
@@ -61,6 +62,13 @@ const app = {
         })
         $('.playlist').innerHTML = htmls.join('');
     },
+    defineProperties: function(){
+        Object.defineProperty(this,'currentSong',{
+            get: function(){
+                return this.songs[this.currentIndex];
+            }
+        })
+    },
     handleEvents: function(){
         const cd = $('.cd');
         const cdWidth = cd.offsetWidth;
@@ -73,8 +81,24 @@ const app = {
             cd.style.opacity = newCdWidth / cdWidth;
         }
     },
+    loadCurrentSong: function(){
+        const heading = $('header h2');
+        const cdThumb = $('.cd-thumb');
+        const audio = $('#audio');
+
+        heading.textContent = this.currentSong.name;
+        cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
+        audio.src = this.currentSong.path;
+
+    },
     start: function(){
+        // Địng nghĩa các thuộc tính cho object
+        this.defineProperties();
+        // Lắng nghe các sự kiện
         this.handleEvents();
+        // Load bài hát đầu tiên vào UI
+        this.loadCurrentSong();
+        // Render playlist
         this.render();
     }
 }
