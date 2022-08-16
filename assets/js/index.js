@@ -12,12 +12,13 @@ const playBtn = $('.btn-toggle-play');
 const progress = $('#progress');
 const nextBtn = $('.btn-next');
 const prevBtn = $('.btn-prev');
+const randomBtn = $('.btn-random');
 
 
 const app = {
     currentIndex : 0,
     isPlaying : false,
-    //isTimeupdate:true,
+    isRandom:false,
 
     songs: [
         {
@@ -138,13 +139,26 @@ const app = {
         }
         // next song
         nextBtn.onclick = function(){
-            app.nextSong();
+            if (app.isRandom){
+                app.randomSong();
+            }else{
+                app.nextSong();
+            }
             audio.play();
         }
         // prev song
         prevBtn.onclick = function(){
-            app.prevSong();
+            if (app.isRandom){
+                app.randomSong();
+            }else{
+                app.prevSong();
+            }
             audio.play();
+        }
+        // random song
+        randomBtn.onclick = function(){
+            app.isRandom = !app.isRandom;
+            randomBtn.classList.toggle('active',app.isRandom);
         }
     },
     loadCurrentSong: function(){
@@ -165,7 +179,14 @@ const app = {
             this.currentIndex = this.songs.length -1;
         }
         this.loadCurrentSong();
-
+    },
+    randomSong: function(){
+        let crrRandom;
+        do{
+            crrRandom = Math.floor(Math.random() * this.songs.length);
+        } while (crrRandom === this.currentIndex);
+        this.currentIndex = crrRandom;
+        this.loadCurrentSong();
     },
     start: function(){
         // Địng nghĩa các thuộc tính cho object
